@@ -1,0 +1,349 @@
+// Gonzalo Garcia
+// 5 Oct 2022
+program PProject;
+
+#include("stdlib.hhf");
+
+static
+//To enter store and to track the user
+enterStore : boolean := false;
+userChoice : uns8 := 0;
+//Stock of items in machine
+blueMilkStock : uns8 := 10;
+kyberCrystalsStock : uns8 := 5;
+blasterAmmoStock : uns8 := 25;
+beskarIngotStock : uns8 := 3;
+ewokRepellantStock : uns8 := 12;
+//To track what the user has bought
+blueMilkBought : uns8 := 0;
+kyberCrystalsBought : uns8 := 0;
+blasterAmmoBought : uns8 := 0;
+beskarIngotBought : uns8 := 0;
+ewokRepellantBought : uns8 := 0;
+//Track payment, change and receipt output
+grandTotal : uns16 := 0;
+bought : uns16 := 0;
+paid : boolean := false;
+receiptTotal : uns16 := 0;
+amountOverpaid : uns16 := 0;
+dollars : uns16 := 0;
+quarters : uns16 := 0;
+dimes : uns16 :=0;
+nickels : uns16 := 0;
+pennies : uns16 := 0;
+moneyPlaceholder: uns16 := 0;
+
+
+//This procedure starts the machine and clears the screen for cleaner output
+procedure start;
+
+begin start;
+
+stdout.put("Finally to agree to our terms and services please enter Y to accept: ");
+stdin.getc();
+stdin.flushInput();
+
+if (al == 'Y' || al == 'y') then
+console.cls();
+mov(true, enterStore);
+elseif (al != 'Y' || al != 'y') then
+console.cls();
+stdout.put("Bye, goodluck getting better prices elsewhere.", nl);
+endif;
+
+end start;
+
+//This procedure checks the stock and handles when the user tries to purchase when there is not enough stock
+procedure stockCheck;
+
+begin stockCheck;
+if (userChoice == 1 && (al > blueMilkStock || blueMilkStock == 0)) then
+stdout.put("Sorry seems like we dont have enough in stock to fulfill your purchase.", nl);
+stdout.put("Please contact your local sales representative.", nl);
+stdout.put("Press Enter to return to the menu: ");
+stdin.getc();
+stdin.flushInput();
+console.cls();
+elseif (userChoice == 1 && (al <= blueMilkStock)) then
+mov(al, bl);
+sub(bl, blueMilkStock);
+add(al, blueMilkBought);
+mov(10, bl);
+mul(bl);
+add(ax, grandTotal);
+console.cls();
+elseif (userChoice == 2 && (al > kyberCrystalsStock || kyberCrystalsStock == 0)) then
+stdout.put("Sorry seems like we dont have enough in stock to fulfill your purchase.", nl);
+stdout.put("Please contact your local sales representative.", nl);
+stdout.put("Press Enter to return to the menu: ");
+stdin.getc();
+stdin.flushInput();
+console.cls();
+elseif (userChoice == 2 && (al <= kyberCrystalsStock)) then
+mov(al, bl);
+sub(bl, kyberCrystalsStock);
+add(al, kyberCrystalsBought);
+mov(25, bl);
+mul(bl);
+add(ax, grandTotal);
+console.cls();
+elseif (userChoice == 3 && (al > blasterAmmoStock || blasterAmmoStock == 0)) then
+stdout.put("Sorry seems like we dont have enough in stock to fulfill your purchase.", nl);
+stdout.put("Please contact your local sales representative.", nl);
+stdout.put("Press Enter to return to the menu: ");
+stdin.getc();
+stdin.flushInput();
+console.cls();
+elseif (userChoice == 3 && (al <= blasterAmmoStock)) then
+mov(al, bl);
+sub(bl, blasterAmmoStock);
+add(al, blasterAmmoBought);
+mov(5, bl);
+mul(bl);
+add(ax, grandTotal);
+console.cls();
+elseif (userChoice == 4 && (al > beskarIngotStock || beskarIngotStock == 0)) then
+stdout.put("Sorry seems like we dont have enough in stock to fulfill your purchase.", nl);
+stdout.put("Please contact your local sales representative.", nl);
+stdout.put("Press Enter to return to the menu: ");
+stdin.getc();
+stdin.flushInput();
+console.cls();
+elseif (userChoice == 4 && (al <= beskarIngotStock)) then
+mov(al, bl);
+sub(bl, beskarIngotStock);
+add(al, beskarIngotBought);
+mov(30, bl);
+mul(bl);
+add(ax, grandTotal);
+console.cls();
+elseif (userChoice == 5 && (al > ewokRepellantStock || ewokRepellantStock == 0)) then
+stdout.put("Sorry seems like we dont have enough in stock to fulfill your purchase.", nl);
+stdout.put("Please contact your local sales representative.", nl);
+stdout.put("Press Enter to return to the menu: ");
+stdin.getc();
+stdin.flushInput();
+console.cls();
+elseif (userChoice == 5 && (al <= ewokRepellantStock)) then
+mov(al, bl);
+sub(bl, ewokRepellantStock);
+add(al, ewokRepellantBought);
+mov(20, bl);
+mul(bl);
+add(ax, grandTotal);
+console.cls();
+endif;
+
+end stockCheck;
+
+//This procedure handles the checkout process and does not let the user leave without paying the full price
+procedure checkout;
+
+begin checkout;
+mov(grandTotal, receiptTotal);
+stdout.put(" GRAND TOTAL: ", grandTotal, "cr", nl, nl);
+stdout.put("Please enter the amount of credits you would like to pay: ");
+stdin.getu16();
+stdin.flushInput();
+if (ax < grandTotal) then
+
+repeat
+sub(ax, grandTotal);
+console.cls();
+stdout.put(nl," GRAND TOTAL: ", grandTotal, "cr", nl, nl);
+stdout.put("You are still a bit short please enter more credits.", nl);
+stdout.put("How many credits would you like to add : ");
+stdin.getu16();
+stdin.flushInput();
+until (grandTotal <= ax);
+
+endif;
+
+if (ax > grandTotal) then
+sub(grandTotal, ax);
+mov(ax, amountOverpaid);
+console.cls();
+stdout.put("---------------------------RECEIPT---------------------------", nl, nl);
+
+if (blueMilkBought > 0) then
+mov(blueMilkBought, al);
+mov(10, bl);
+mul(bl);
+stdout.put("Blue Milk QTY: ", blueMilkBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+
+if (kyberCrystalsBought > 0) then
+mov(kyberCrystalsBought, al);
+mov(25, bl);
+mul(bl);
+stdout.put("Kyber Crystals QTY: ", kyberCrystalsBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+
+if (blasterAmmoBought > 0) then
+mov(blasterAmmoBought, al);
+mov(5, bl);
+mul(bl);
+stdout.put("Blaster Ammo QTY: ", blasterAmmoBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+
+if (beskarIngotBought > 0) then
+mov(beskarIngotBought, al);
+mov(30, bl);
+mul(bl);
+stdout.put("Beskar Ingots QTY: ", beskarIngotBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+
+if (ewokRepellantBought > 0) then
+mov(ewokRepellantBought, al);
+mov(20, bl);
+mul(bl);
+stdout.put("Ewok Repellant QTY: ", ewokRepellantBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+//This is the all the division needed to convert into change
+mov(amountOverpaid, ax);
+mov(0, dx);
+div(100, dx:ax);
+mov(ax, dollars);
+mov(dx, moneyPlaceholder);
+mov(moneyPlaceholder, ax);
+mov(0, dx);
+div(25, dx:ax);
+mov(ax, quarters);
+mov(dx, moneyPlaceholder);
+mov(moneyPlaceholder, ax);
+mov(0, dx);
+div(10, dx:ax);
+mov(ax, dimes);
+mov(dx, moneyPlaceholder);
+mov(moneyPlaceholder, ax);
+mov(0, dx);
+div(5, dx:ax);
+mov(ax, nickels);
+mov(dx, moneyPlaceholder);
+mov(moneyPlaceholder, ax);
+mov(0, dx);
+div(1, dx:ax);
+mov(ax, pennies);
+
+
+stdout.put("GRAND TOTAL: ", receiptTotal, nl, nl);
+stdout.put("YOUR CHANGE IS: ", amountOverpaid, " cr", nl);
+stdout.put(dollars, " dollar(s), ", quarters, " quarter(s), ", dimes, " dime(s), ", nickels, " nickel(s), ", pennies, " pennies.", nl);
+stdout.put("-------------------------------------------------------------", nl, nl);
+stdout.put("Thank Your for shopping at Gonzo's SPACE EXPRESS.", nl, nl);
+mov(true, paid);
+
+elseif (ax == grandTotal) then
+console.cls();
+stdout.put("---------------------------RECEIPT---------------------------", nl, nl);
+
+if (blueMilkBought > 0) then
+mov(blueMilkBought, al);
+mov(10, bl);
+mul(bl);
+stdout.put("Blue Milk QTY: ", blueMilkBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+
+if (kyberCrystalsBought > 0) then
+mov(kyberCrystalsBought, al);
+mov(25, bl);
+mul(bl);
+stdout.put("Kyber Crystals QTY: ", kyberCrystalsBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+
+if (blasterAmmoBought > 0) then
+mov(blasterAmmoBought, al);
+mov(5, bl);
+mul(bl);
+stdout.put("Blaster Ammo QTY: ", blasterAmmoBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+
+if (beskarIngotBought > 0) then
+mov(beskarIngotBought, al);
+mov(30, bl);
+mul(bl);
+stdout.put("Beskar Ingots QTY: ", beskarIngotBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+
+if (ewokRepellantBought > 0) then
+mov(ewokRepellantBought, al);
+mov(20, bl);
+mul(bl);
+stdout.put("Ewok Repellant QTY: ", ewokRepellantBought, " TOTAL: ", (type uns8 al) , "cr", nl, nl);
+endif;
+stdout.put("GRAND TOTAL: ", receiptTotal, nl, nl);
+stdout.put("-------------------------------------------------------------", nl, nl);
+stdout.put("Thank Your for shopping at Gonzo's SPACE EXPRESS.", nl, nl);
+mov(true, paid);
+
+endif;
+end checkout;
+//Main program
+begin PProject;
+stdout.put("Hello weary space traveler and thanks for visiting Gonzo's SPACE EXPRESS.", nl);
+stdout.put("The rules are as follows:", nl);
+stdout.put("1. Select the number next to the item you would like to purchase.", nl);
+stdout.put("2. After selection you will be asked how many of that item you would like to purchase.", nl);
+
+start();
+
+
+if (enterStore == true) then
+forever
+
+stdout.put("_______________________________________________", nl);
+stdout.put(" 1. Blue Milk Cost:10 Cr Quantity: ", blueMilkStock, nl);
+stdout.put(" 2. Kyber Crystals Cost:25 Cr Quantity: ", kyberCrystalsStock, nl);
+stdout.put(" 3. Blaster Ammo Cost:5 Cr Qunatity: ", blasterAmmoStock, nl);
+stdout.put(" 4. Beskar Ingot Cost:30 Cr Quantity: ", beskarIngotStock, nl);
+stdout.put(" 5. Ewok Repellant Cost:20 Cr Quantity: ", ewokRepellantStock, nl);
+stdout.put(" 6. Checkout ", nl);
+stdout.put("_______________________________________________", nl, nl);
+stdout.put("GRAND TOTAL: ", grandTotal, "cr", nl);
+stdout.put("ENTER ITEM # HERE: ");
+stdin.getu8();
+stdin.flushInput();
+
+if ((al == 1) && (blueMilkStock >= 0)) then
+mov(1, userChoice);
+stdout.put("How many would you like to purchase: ");
+stdin.getu8();
+stdin.flushInput();
+stockCheck();
+elseif (al == 2 && kyberCrystalsStock >= 0) then
+mov(2, userChoice);
+stdout.put("How many would you like to purchase: ");
+stdin.getu8();
+stdin.flushInput();
+stockCheck();
+elseif (al == 3 && blasterAmmoStock >= 0) then
+mov(3, userChoice);
+stdout.put("How many would you like to purchase: ");
+stdin.getu8();
+stdin.flushInput();
+stockCheck();
+elseif (al == 4 && beskarIngotStock >= 0) then
+mov(4, userChoice);
+stdout.put("How many would you like to purchase: ");
+stdin.getu8();
+stdin.flushInput();
+stockCheck();
+elseif (al == 5 && ewokRepellantStock >= 0) then
+mov(5, userChoice);
+stdout.put("How many would you like to purchase: ");
+stdin.getu8();
+stdin.flushInput();
+stockCheck();
+elseif (al == 6) then
+console.cls();
+checkout();
+elseif (al != 1 || al != 2 || al != 3 || al != 4 || al != 5 || al != 6) then
+endif;
+breakif (paid == true);
+console.cls();
+
+endfor;
+
+endif;
+
+end PProject;

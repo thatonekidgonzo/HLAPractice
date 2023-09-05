@@ -1,0 +1,280 @@
+// Personal Project 2
+//
+// Gonzalo Garcia
+// 12/11/22
+program PersonalProject;
+
+#include ("stdlib.hhf")
+
+
+static
+ArraySize: uns32;
+Addr: dword;
+SumArray: int8;
+MinArray: int8;
+MaxArray: int8;
+AvgArray: int8;
+
+
+// This gets int8 from the user to fill the Array
+procedure getInt8(prompt: string; min: int8; max: int8);
+begin getInt8;
+forever
+
+stdout.put(prompt);
+try
+stdin.geti8();
+unprotected
+stdin.flushInput();
+breakif((type int8 al) >= min && (type int8 al) <= max);
+stdout.put("Input is not between ", min, " and ", max, ".", nl, nl);
+anyexception
+stdout.put("Not a valid signed 8-bit integer.", nl, nl);
+endtry;
+
+endfor;
+
+end getInt8;
+
+
+
+// Read in a uns 32 that determined the size of the Array between min and max
+procedure getUns32(prompt: string; min: uns32; max:uns32);
+begin getUns32;
+
+forever
+stdout.put(prompt);
+try
+stdin.getu32();
+unprotected
+stdin.flushInput();
+breakif((type uns32 eax) >= min && (type uns32 eax) <= max);
+stdout.put("Input is not between ", min, " and ", max, ".", nl, nl);
+anyexception
+stdout.put("Not a valid unsigned 32-bit integer.", nl, nl);
+endtry;
+
+endfor;
+end getUns32;
+
+
+
+// Creates an Array of the desired size of the user.
+procedure createArray;
+begin createArray;
+
+pushad();
+getUns32("What size array would you like today? (min: 2 max: 10)", 2, 10);
+mov(eax, ArraySize);
+stdout.newln();
+
+mov(@size(int8), eax);
+mul(ArraySize);
+
+stdout.put("Allocated ", (type uns32 eax), " bytes", nl, nl);
+
+mem.zalloc(eax);
+
+mov(eax, Addr);
+
+popad();
+
+end createArray;
+
+
+//Generates a random array of int8's
+procedure randomArray;
+begin randomArray;
+pushad();
+
+rand.randomize();
+
+mov(Addr, ebx);
+
+for (mov(0, ecx); ecx < ArraySize; inc(ecx)) do
+rand.urange(-10, 10);
+mov(al, [ebx + ecx]);
+endfor;
+
+popad();
+
+end randomArray;
+
+
+
+//Allows the user to fill the array with their values
+procedure fillArray;
+begin fillArray;
+
+pushad();
+
+mov(Addr, ebx);
+
+for (mov(0, ecx); ecx < ArraySize; inc(ecx)) do
+getInt8("Enter a number between -10 - 10: ", -10, 10);
+mov(al, [ebx + ecx]);
+endfor;
+popad();
+
+end fillArray;
+
+
+
+//prompts the user to choose how they want their array filled
+procedure userChoice;
+begin userChoice;
+
+stdout.put("Would you like to fill out the Array Yourself(Y) or leave it to the computer(C)? (Y)(C)", nl);
+stdin.getc();
+stdin.flushInput();
+
+if (al == 'Y' || al == 'y') then
+mov(true, al);
+elseif (al == 'C' || al == 'c') then
+mov(false, al);
+endif;
+
+if (al == true) then
+fillArray();
+elseif (al == false) then
+randomArray();
+endif;
+end userChoice;
+
+
+// This prints out the Array to the user
+procedure print(Addr: dword; ArraySize: uns32);
+begin print;
+pushad();
+
+mov(Addr, ebx);
+
+for (mov(0, ecx); ecx < ArraySize; inc(ecx)) do
+stdout.put((type int8 [ebx + ecx]), " ");
+endfor;
+stdout.newln();
+
+popad();
+end print;
+
+//The sum of the array
+procedure sum;
+begin sum;
+pushad();
+
+mov(Addr, ebx);
+
+mov(0, SumArray);
+
+for (mov(0, ecx); ecx < ArraySize; inc(ecx)) do
+mov([ebx + ecx], al);
+
+add(al, SumArray);
+
+endfor;
+
+stdout.newln();
+
+popad();
+end sum;
+
+//find the smallest number in the array
+procedure min;
+begin min;
+pushad();
+
+mov(Addr, ebx);
+
+mov([ebx], al);
+
+for (mov(1, ecx); ecx < ArraySize; inc(ecx)) do
+
+if ((type int8 al) > [ebx + ecx]) then
+mov([ebx + ecx], al);
+
+endif;
+endfor;
+mov(al, MinArray);
+
+popad();
+
+end min;
+
+//find the largest number in the array
+procedure max;
+begin max;
+
+pushad();
+
+mov(Addr, ebx);
+
+mov([ebx], al);
+
+for (mov(1, ecx); ecx < ArraySize; inc(ecx)) do
+
+if ((type int8 al) < [ebx + ecx]) then
+mov([ebx + ecx], al);
+endif;
+
+endfor;
+
+mov(al, MaxArray);
+
+popad();
+
+end max;
+
+//find the avg number in the array
+procedure avg;
+begin avg;
+
+mov(SumArray, al);
+cbw();
+idiv((type int8 ArraySize), ax);
+mov(al, AvgArray);
+
+end avg;
+
+
+//Allows the user to play again
+procedure playagain;
+begin playagain;
+stdout.put("Play again (y/n)? ");
+stdin.getc();
+stdin.flushInput();
+
+if (al == 'y' || al == 'Y') then
+mov(true, al);
+elseif (al == 'n' || al == 'N') then
+mov(false, al);
+endif;
+
+end playagain;
+
+begin PersonalProject;
+forever
+stdout.put("Welcome to the Build-A-Array-3000!", nl);
+createArray();
+userChoice();
+print(Addr, ArraySize);
+sum();
+stdout.put("The total sum of your array is ", (type int8 SumArray), ".");
+stdout.newln();
+min();
+stdout.put("The smallest number in your array is ", (type int8 MinArray), ".");
+stdout.newln();
+max();
+stdout.put("The largest number in your array is ", (type int8 MaxArray), ".");
+stdout.newln();
+avg();
+stdout.put("The average of the numbers entered is ", (type int8 AvgArray), ".");
+mem.free(Addr);
+mov(0, Addr);
+stdout.newln();
+stdout.put("Memory has been freed!");
+stdout.newln();
+playagain();
+breakif(al == false);
+console.cls();
+endfor;
+end PersonalProject;
